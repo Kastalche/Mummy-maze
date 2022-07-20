@@ -6,7 +6,6 @@ public class GridManager : MonoBehaviour
 {
     [SerializeField] private int _width, _height;
     [SerializeField] private Tile _tilePrefab;
-    [SerializeField] private Transform _cam;
     public Tile[,] tiles { get; private set; }
 
     private void Awake()
@@ -33,8 +32,6 @@ public class GridManager : MonoBehaviour
             }
 
         }
-
-        _cam.transform.position = new Vector3((float)_width / 2 - 0.5f, (float)_height / 2 - 0.5f, -10);
         GenerateObstacles();
     }
     void AddObstacles(int x,int y, int obstacle)
