@@ -8,59 +8,74 @@ using UnityEngine;
 using UnityEngine.Events;
 
 
-    public class Player : MonoBehaviour
-    {
-        [SerializeField] private GridManager gridManager;
+public class Player : MonoBehaviour
+{
+    [SerializeField] private GridManager gridManager;
 
-        public UnityEvent PlayerMoved;
-        public Tile startPosition { get; private set; }
+    public UnityEvent PlayerMoved;
+    public Tile startPosition { get; private set; }
 
-        void Awake()
+    void Awake()
     {
         PlayerMoved = new UnityEvent();
     }
-        private void Start()
+    private void Start()
+    {
+        startPosition = gridManager.tiles[1, 2];
+        transform.position = startPosition.transform.position;
+    }
+    void Update()
+    {
+        Move();
+    }
+
+    public void Move()
+    {
+        var playerPos = gridManager.tiles[(int)transform.position.x, (int)transform.position.y];
+
+        if (Input.GetKeyUp(KeyCode.D) && (int)transform.position.x + 1 < 6)
         {
-            startPosition = gridManager.tiles[1, 2];
-            transform.position = startPosition.transform.position;
+            if (isAvailableFrom(gridManager.tiles[(int)playerPos.x + 1, (int)playerPos.y], gridManager.tiles[(int)playerPos.x, (int)playerPos.y]))
+            {
+                transform.position = gridManager.tiles[(int)transform.position.x + 1, (int)transform.position.y].transform.position;
+                PlayerMoved?.Invoke();
+            }
         }
-        void Update()
+        else if (Input.GetKeyUp(KeyCode.A) && (int)transform.position.x - 1 > -1)
         {
-            Move();
+            if (isAvailableFrom(gridManager.tiles[(int)playerPos.x - 1, (int)playerPos.y], gridManager.tiles[(int)playerPos.x, (int)playerPos.y]))
+            {
+                transform.position = gridManager.tiles[(int)transform.position.x - 1, (int)transform.position.y].transform.position;
+                PlayerMoved?.Invoke();
+            }
         }
 
-        public void Move()
-    {
-       var playerPos = gridManager.tiles[(int)transform.position.x, (int)transform.position.y];
-        
-        if (Input.GetKeyUp(KeyCode.D) && isAvailableFrom(gridManager.tiles[(int)playerPos.x + 1, (int)playerPos.y], gridManager.tiles[(int)playerPos.x, (int)playerPos.y]))
+        else if (Input.GetKeyUp(KeyCode.W) && (int)transform.position.y + 1 < 6)
         {
-            transform.position = gridManager.tiles[(int)transform.position.x + 1, (int)transform.position.y].transform.position;
-            PlayerMoved?.Invoke();
+            if (isAvailableFrom(gridManager.tiles[(int)playerPos.x, (int)playerPos.y + 1], gridManager.tiles[(int)playerPos.x, (int)playerPos.y]))
+            {
+                transform.position = gridManager.tiles[(int)transform.position.x, (int)transform.position.y + 1].transform.position;
+                PlayerMoved?.Invoke();
+            }
         }
-        if (Input.GetKeyUp(KeyCode.A) && isAvailableFrom(gridManager.tiles[(int)playerPos.x - 1, (int)playerPos.y], gridManager.tiles[(int)playerPos.x, (int)playerPos.y]))
+
+        else if (Input.GetKeyUp(KeyCode.S) && (int)transform.position.y - 1 > -1)
         {
-            transform.position = gridManager.tiles[(int)transform.position.x - 1, (int)transform.position.y].transform.position;
-            PlayerMoved?.Invoke();
+            if (isAvailableFrom(gridManager.tiles[(int)playerPos.x, (int)playerPos.y - 1], gridManager.tiles[(int)playerPos.x, (int)playerPos.y]))
+            {
+                transform.position = gridManager.tiles[(int)transform.position.x, (int)transform.position.y - 1].transform.position;
+                PlayerMoved?.Invoke();
+            }
         }
-        if (Input.GetKeyUp(KeyCode.W) && isAvailableFrom(gridManager.tiles[(int)playerPos.x, (int)playerPos.y + 1], gridManager.tiles[(int)playerPos.x, (int)playerPos.y]))
-        {
-            transform.position = gridManager.tiles[(int)transform.position.x, (int)transform.position.y + 1].transform.position;
-            PlayerMoved?.Invoke();
-        }
-        if (Input.GetKeyUp(KeyCode.S) && isAvailableFrom(gridManager.tiles[(int)playerPos.x, (int)playerPos.y - 1], gridManager.tiles[(int)playerPos.x, (int)playerPos.y]))
-        {
-            transform.position = gridManager.tiles[(int)transform.position.x, (int)transform.position.y - 1].transform.position;
-            PlayerMoved?.Invoke();
-        }
-        if (Input.GetKeyUp(KeyCode.Space))
+
+        else if (Input.GetKeyUp(KeyCode.Space))
         {
             PlayerMoved?.Invoke();
         }
 
     }
 
-        public bool isAvailableFrom(Tile targetTile, Tile yourTile)
+    public bool isAvailableFrom(Tile targetTile, Tile yourTile)
     {
         if (targetTile.obstacles.Count != 0)
         {
@@ -100,6 +115,6 @@ using UnityEngine.Events;
     }
 
 
-    }
+}
 
 
