@@ -14,7 +14,7 @@ public class GridManager : MonoBehaviour
     }
     void GenerateGrid()
     {
-        tiles=new Tile [_width, _height];
+        tiles = new Tile[_width, _height];
         for (int x = 0; x < _width; x++)
         {
             for (int y = 0; y < _height; y++)
@@ -34,7 +34,7 @@ public class GridManager : MonoBehaviour
         }
         GenerateObstacles();
     }
-    void AddObstacles(int x,int y, int obstacle)
+    void AddObstacles(int x, int y, int obstacle)
     {
         tiles[x, y].obstacles.Add(obstacle);
     }

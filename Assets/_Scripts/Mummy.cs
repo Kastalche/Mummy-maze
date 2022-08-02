@@ -12,13 +12,15 @@ namespace Assets._Scripts
     {
         public Tile startPosition { get; private set; }
         [SerializeField] private GridManager gridManager;
-        [SerializeField] private Player player;
-        
+        [SerializeField] private Player player1;
+        [SerializeField] private Player player2;
+        private Player player;
 
         public void Start()
         {
             startPosition = gridManager.tiles[5, 3];
             transform.position = startPosition.transform.position;
+            player = player1;
         }
         public void MoveHorizontally()
         {
@@ -28,7 +30,7 @@ namespace Assets._Scripts
             if (mummyPos.x < playerPos.x)   //right
             {
                 if (isAvailableFrom(gridManager.tiles[(int)mummyPos.x + 1, (int)mummyPos.y], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
-                { 
+                {
                     GoTo(gridManager.tiles[(int)mummyPos.x + 1, (int)mummyPos.y]);
                 }
             }
@@ -36,9 +38,10 @@ namespace Assets._Scripts
             else   //left
             {
                 if (isAvailableFrom(gridManager.tiles[(int)mummyPos.x - 1, (int)mummyPos.y], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
-                { 
+                {
                     GoTo(gridManager.tiles[(int)mummyPos.x - 1, (int)mummyPos.y]);
                 }
+
             }
         }
 
@@ -71,6 +74,8 @@ namespace Assets._Scripts
 
         public Tile FindPlayerTile()
         {
+            ComparePlayers();
+            //Compare player1 and player2 positions and check
             for (int i = 0; i < 6; i++)
             {
                 for (int j = 0; j < 6; j++)
@@ -79,7 +84,7 @@ namespace Assets._Scripts
                         return gridManager.tiles[i, j];
                 }
             }
-          return gridManager.tiles[(int)transform.position.x,(int)transform.position.y];
+            return gridManager.tiles[(int)transform.position.x, (int)transform.position.y];
         }
 
         public bool MummyNotOnPlayersX()
@@ -141,5 +146,19 @@ namespace Assets._Scripts
             return true;
         }
 
+        public void ComparePlayers()
+        {
+            if ((Math.Abs((int)transform.position.x - (int)player1.transform.position.x) > Math.Abs((int)transform.position.x - (int)player2.transform.position.x)))
+                player = player2;
+            else if (player1.startPosition.x == player2.startPosition.x)
+                player = player1;
+            else
+                player = player1;
+        }
+
+
+
     }
+
 }
+
