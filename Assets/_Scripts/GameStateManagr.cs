@@ -1,98 +1,104 @@
-using Assets._Scripts;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public enum GameState { SinglePlayer, Multiplayer }
-public enum RoundState { Firstplayer, SecondPlayer, Mummy, Check }
+public enum GameModes { SinglePlayer, Multiplayer }
+public enum GameState { Explorers, Mummies, Check }
 public class GameStateManagr : MonoBehaviour
 {
-    [SerializeField] private Player player1; // current plaeyr consept
-    [SerializeField] private Player player2;
-    [SerializeField] private Mummy mummy;
+    private Character currentPlayer;
+    [SerializeField] List<Character> characters;
 
     [SerializeField] private GridManager gridManager;
 
-    [SerializeField] private Canvas canvas;
-    [SerializeField] private Canvas canvaseLose;
+    [SerializeField] private Canvas ExplorersWin;
+    [SerializeField] private Canvas MummiesWin;
     [SerializeField] private PlayerMovement playerMovement;
 
-    private GameState state;
-    private RoundState roundState;
+    private GameModes mode;
+    private GameState gameState;
 
+    //add player dying
     //case singlePlayer, case multiplear
     void Start()
     {
-        canvas.enabled = false;
-        canvaseLose.enabled = false;
+        currentPlayer = characters[0];
+        ExplorersWin.enabled = false;
+        MummiesWin.enabled = false;
 
-        playerMovement.FirstPlayerMoved.AddListener(OnFirstPlayerMoved);
-        playerMovement.SecondPlayersMoved.AddListener(OnSecondPlayersMoved);
+        playerMovement.ExplorerMoved.AddListener(ExplorerMoved);
 
         Scene currentScene = SceneManager.GetActiveScene();
         string sceneName = currentScene.name;
 
         if (sceneName == "SampleScene")
-        {
-            player1.startPosition = gridManager.tiles[1, 2];
-            player1.transform.position = player1.startPosition.transform.position;
+        {//is it possible adding character to be in delegate;0
+            //always first character in list is mummy
+            characters.Add(new Character { startPosition = gridManager.tiles[3, 5], isBot = true, isMummy = true });
+            characters.Add(new Character { startPosition = gridManager.tiles[1, 2], isBot = false, isMummy = false, });
 
-            state = GameState.SinglePlayer;
+            CharactersToStartPosition();
+
+            mode = GameModes.SinglePlayer;
 
         }
         else if (sceneName == "MultiPlayerScene")
         {
-            player1.startPosition = gridManager.tiles[1, 2];
-            player1.transform.position = player1.startPosition.transform.position;
+            //one bot mummym and two players explorers
+            characters.Add(new Character { startPosition = gridManager.tiles[1, 2], isBot = false, isMummy = false, });
+            characters.Add(new Character { startPosition = gridManager.tiles[1, 4], isBot = false, isMummy = false, });
+            characters.Add(new Character { startPosition = gridManager.tiles[1, 2], isBot = false, isMummy = true, });
 
-            player2.startPosition = gridManager.tiles[1, 4];
-            player2.transform.position = player2.startPosition.transform.position;
+            CharactersToStartPosition();
 
-            state = GameState.Multiplayer;
+            mode = GameModes.Multiplayer;
         }
     }
 
     void Update()
     {
-        switch (state)
+        switch (mode)
         {
-            case GameState.SinglePlayer:
+            case GameModes.SinglePlayer:
                 {
-                    playerMovement.GenerateMoveFirstPlayer();
+                    var explorer = characters[1];
+                    playerMovement.GenerateExplorerMove(explorer);
                     CheckForGameEnd();
                     break;
                 }
-            case GameState.Multiplayer:
+            case GameModes.Multiplayer:
                 {
-                    switch (roundState)
+                    switch (gameState)
                     {
-                        case RoundState.Firstplayer:
-                            print(roundState.ToString());
-                            playerMovement.GenerateMoveFirstPlayer();
-
-                            //change color of active player
-                            player1.GetComponent<SpriteRenderer>().color = new Color(0.9811321f, 0.8928651f, 0.6238519f, 1);
-                            player2.GetComponent<SpriteRenderer>().color = Color.white;
-
-                            break;
-                        case RoundState.SecondPlayer:
-                            print(roundState.ToString());
-                            playerMovement.GenerateMoveSecondPlayer();
-
-                            //change color of active player
-                            player1.GetComponent<SpriteRenderer>().color = Color.white;
-                            player2.GetComponent<SpriteRenderer>().color = new Color(0.9811321f, 0.8928651f, 0.6238519f, 1);
-
+                        case GameState.Explorers:
+                            while (currentPlayer != null)
+                            {
+                                if (currentPlayer.isMummy == true)
+                                {
+                                    ExplorerMoved();
+                                }
+                                playerMovement.GenerateExplorerMove(currentPlayer);
+                                gameState = GameState.Mummies;
+                            }
                             break;
 
-                        case RoundState.Mummy:
-                            print(roundState.ToString());
-                            GenerateMummyMove();
+                        case GameState.Mummies:
+                            foreach (var character in characters)
+                            {
+                                if (character.isMummy == false)
+                                {
+                                    playerMovement.GenerateExplorerMove(character);
+                                }
+                                else if (character.isMummy == true && character.isBot == true)
+                                    GenerateBotMummyMove(character);
+                                else (character.isMummy == true && character.isBot == false)
+                                    playerMovement.GeneratePlayerMummyMove(character);
+                            }
+
                             break;
 
-                        case RoundState.Check:
-                            print(roundState.ToString());
+                        case GameState.Check:
                             CheckForGameEnd();
                             break;
                     }
@@ -101,77 +107,97 @@ public class GameStateManagr : MonoBehaviour
             default:
                 break;
         }
-
     }
 
-    private void OnFirstPlayerMoved()
+    private void ExplorerMoved()
     {
-        if (state == GameState.SinglePlayer)
+        if (mode == GameModes.SinglePlayer)
         {
-            GenerateMummyMove();
+            GenerateBotMummyMove(characters[0]);
         }
         else
         {
-            roundState = RoundState.SecondPlayer;
+            while (currentPlayer != null)
+                currentPlayer = characters[characters.IndexOf(currentPlayer) + 1];
         }
 
-        canvas.enabled = false;
-        canvaseLose.enabled = false;
+        ExplorersWin.enabled = false;
+        MummiesWin.enabled = false;
     }
-    private void OnSecondPlayersMoved()
-    {
-        roundState = RoundState.Mummy;
-    }
-
     public void RestartGame()
     {
-        player1.transform.position = player1.startPosition.transform.position;
-        player2.transform.position = player2.startPosition.transform.position;
-        mummy.transform.position = mummy.startPosition.transform.position;
+        foreach (var character in characters)
+        {
+            character.transform.position = character.startPosition.transform.position;
+        }
     }
 
     public void CheckForGameEnd()
     {
-        if (player1.transform.position == mummy.transform.position || player2.transform.position == mummy.transform.position)
+        if (currentPlayer.transform.position == mummy.transform.position || currentPlayer.transform.position == mummy.transform.position)
         {
             RestartGame();
-            canvaseLose.enabled = true;
+            MummiesWin.enabled = true;
         }
-        else if (gridManager.tiles[5, 0].transform.position == player1.transform.position && gridManager.tiles[5, 0].transform.position == player2.transform.position)
+        else if (gridManager.tiles[5, 0].transform.position == currentPlayer.transform.position && gridManager.tiles[5, 0].transform.position == currentPlayer.transform.position)
         {
             RestartGame();
-            canvas.enabled = true;
+            ExplorersWin.enabled = true;
         }
         else
-            roundState = RoundState.Firstplayer;
+            gameState = GameState.Explorers;
     }
 
-    public void GenerateMummyMove()
+    public void GenerateBotMummyMove(Character mummy)
     {
-        if (mummy.MummyNotOnPlayersX())
+        if (playerMovement.MummyNotOnPlayersX(mummy))
         {
-            mummy.MoveHorizontally();
+            playerMovement.BotMoveHorizontally(mummy);
             print("horizontal");
         }
         else
         {
-            mummy.MoveVertically();
+            playerMovement.BotMoveVertically(mummy);
             print("vertical");
         }
 
-        if (mummy.MummyNotOnPlayersY())
+        if (playerMovement.MummyNotOnPlayersY(mummy))
         {
-            mummy.MoveVertically();
-            print("vertical");
+            playerMovement.BotMoveVertically(mummy);
         }
         else
         {
-            mummy.MoveHorizontally();
-            print("horizontal");
+            playerMovement.BotMoveHorizontally(mummy);
         }
-        roundState = RoundState.Check;
+        gameState = GameState.Check;
     }
 
+    public void ExploresTurn()
+    {
+        foreach (var character in characters)
+        {
+            if (character.isMummy == false)
+                playerMovement.GenerateExplorerMove(character);
+        }
+    }
+
+    public void MummiesTurn()
+    {
+        foreach (var character in characters)
+        {
+            if (character.isMummy == true && character.isBot == true)
+                GenerateBotMummyMove(character);
+            else if (character.isMummy == true && character.isBot == false)
+                playerMovement.GeneratePlayerMummyMove(character);
+        }
+    }
+    public void CharactersToStartPosition()
+    {
+        foreach (var character in characters)
+        {
+            character.GoToStartPosition();
+        }
+    }
 }
 
 
