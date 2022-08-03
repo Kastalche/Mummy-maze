@@ -27,10 +27,7 @@ public class GridManager : MonoBehaviour
 
                 spawnedTile.Init(isOffset, x, y);
                 tiles[x, y] = spawnedTile;
-                //or some other thing
-
             }
-
         }
         GenerateObstacles();
     }
