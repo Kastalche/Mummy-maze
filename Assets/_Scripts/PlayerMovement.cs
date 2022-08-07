@@ -228,9 +228,9 @@ public class PlayerMovement : MonoBehaviour
         return true;
     }
 
-    public Character CompareExplores(Character player1, Character player2)
+    public Character CompareExplores(Character mummy, Character player1, Character player2)
     {
-        if ((Math.Abs((int)transform.position.x - (int)player1.transform.position.x) > Math.Abs((int)transform.position.x - (int)player2.transform.position.x)))
+        if ((Math.Abs((int)mummy.transform.position.x - (int)player1.transform.position.x) > Math.Abs((int)mummy.transform.position.x - (int)player2.transform.position.x)))
             return player2;
         else if (player1.startPosition.x == player2.startPosition.x)
             return player1;
@@ -238,7 +238,7 @@ public class PlayerMovement : MonoBehaviour
             return player1;
     }
 
-    public void GeneratePlayerMummyMove(Character character)
+    public void GeneratePlayerMummyMove(Character mummy)
     {
 
     }
