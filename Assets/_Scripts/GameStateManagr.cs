@@ -4,11 +4,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public enum GameModes { SinglePlayer, Multiplayer }
-public enum GameState { Explorers, Mummies, Check }
+//public enum GameState { Explorers, Mummies, Check }
+public enum StateType { StartState, BattleState, EndState }
 public class GameStateManagr : MonoBehaviour
 {
+    public GameModes mode { get; private set; }
     private Character currentPlayer;
-    [SerializeField] List<Character> characters;
+    [SerializeField] public List<Character> characters { get; private set; }
 
     [SerializeField] private GridManager gridManager;
 
@@ -16,44 +18,14 @@ public class GameStateManagr : MonoBehaviour
     [SerializeField] private Canvas MummiesWin;
     [SerializeField] private PlayerMovement playerMovement;
 
-    private GameModes mode;
-    private GameState gameState;
+    //private GameState gameState;
 
     //add player dying
     //case singlePlayer, case multiplear
     void Start()
     {
-        currentPlayer = characters[0];
-        ExplorersWin.enabled = false;
-        MummiesWin.enabled = false;
+        state = new StartController(this);
 
-        playerMovement.ExplorerMoved.AddListener(ExplorerMoved);
-
-        Scene currentScene = SceneManager.GetActiveScene();
-        string sceneName = currentScene.name;
-
-        if (sceneName == "SampleScene")
-        {//is it possible adding character to be in delegate;0
-            //always first character in list is mummy
-            characters.Add(new Character { startPosition = gridManager.tiles[3, 5], isBot = true, isMummy = true });
-            characters.Add(new Character { startPosition = gridManager.tiles[1, 2], isBot = false, isMummy = false, });
-
-            CharactersToStartPosition();
-
-            mode = GameModes.SinglePlayer;
-
-        }
-        else if (sceneName == "MultiPlayerScene")
-        {
-            //one bot mummym and two players explorers
-            characters.Add(new Character { startPosition = gridManager.tiles[1, 2], isBot = false, isMummy = false, });
-            characters.Add(new Character { startPosition = gridManager.tiles[1, 4], isBot = false, isMummy = false, });
-            characters.Add(new Character { startPosition = gridManager.tiles[1, 2], isBot = false, isMummy = true, });
-
-            CharactersToStartPosition();
-
-            mode = GameModes.Multiplayer;
-        }
     }
 
     void Update()
@@ -108,6 +80,29 @@ public class GameStateManagr : MonoBehaviour
                 break;
         }
     }
+    public void Transition(StateType type)
+    {
+        state.Dispose();
+
+        switch (type)
+        {
+            case StateType.StartState:
+                state = new StartController(this);
+                break;
+
+            case StateType.BattleState:
+                state = new BattleController(this);
+                break;
+
+            case StateType.EndState:
+                state = new EndController(this);
+                break;
+
+            default:
+                break;
+        }
+        state.Start();
+    }
 
     private void ExplorerMoved()
     {
@@ -124,13 +119,7 @@ public class GameStateManagr : MonoBehaviour
         ExplorersWin.enabled = false;
         MummiesWin.enabled = false;
     }
-    public void RestartGame()
-    {
-        foreach (var character in characters)
-        {
-            character.transform.position = character.startPosition.transform.position;
-        }
-    }
+
 
     public void CheckForGameEnd()
     {
@@ -198,6 +187,31 @@ public class GameStateManagr : MonoBehaviour
             character.GoToStartPosition();
         }
     }
+    public void AddCharacters()
+    {
+        Scene currentScene = SceneManager.GetActiveScene();
+        string sceneName = currentScene.name;
+        if (sceneName == "SampleScene")
+        {
+            characters.Add(new Character { startPosition = gridManager.tiles[3, 5], isBot = true, isMummy = true });
+            characters.Add(new Character { startPosition = gridManager.tiles[1, 2], isBot = false, isMummy = false, });
+            mode = GameModes.SinglePlayer
+        }
+        else if (sceneName == "MultiPlayerScene")
+        {
+            mode = GameModes.Multiplayer;
+            //one bot mummym and two players explorers
+            characters.Add(new Character { startPosition = gridManager.tiles[1, 2], isBot = false, isMummy = false, });
+            characters.Add(new Character { startPosition = gridManager.tiles[1, 4], isBot = false, isMummy = false, });
+            characters.Add(new Character { startPosition = gridManager.tiles[1, 2], isBot = false, isMummy = true, });
+        }
+        currentPlayer = characters[0];
+    }
+    public void DisableAllUI()
+    {
+        ExplorersWin.enabled = false;
+        MummiesWin.enabled = false;
+    }
 }
 
 
@@ -208,78 +222,3 @@ public class GameStateManagr : MonoBehaviour
 
 
 
-//player1.UnableMovement();
-//                playerMovement.GenerateMoves(player2);
-//                player2.UnableMovement();
-//                player1.AbleMovement();
-//                playerMovement.GenerateMove();
-//                CheckForGameEnd();
-//                break;
-
-//public bool IsTheMummyNextToPlayerByX()
-//{
-//    if ((player.transform.position.x - 1 == mummy.transform.position.x && player.transform.position.y == mummy.transform.position.y) || (player.transform.position.x + 1 == mummy.transform.position.x && player.transform.position.y == mummy.transform.position.y))
-//        return true;
-//    else
-//        return false;
-//}
-//public bool IsTheMummyNextToPlayerByY()
-//{
-//    if ((player.transform.position.y - 1 == mummy.transform.position.y && player.transform.position.x == mummy.transform.position.x) || (player.transform.position.y + 1 == mummy.transform.position.y && player.transform.position.x == mummy.transform.position.x))
-//        return true;
-//    else return false;
-//}
-
-//if (IsTheMummyNextToPlayerByX())
-//{
-//    mummy.transform.position = player.transform.position;
-//    RestartGame();
-//    canvaseLose.enabled = true;
-//}
-
-//else if (IsTheMummyNextToPlayerByY())
-//{
-//    mummy.transform.position = player.transform.position;
-//    RestartGame();
-//    canvaseLose.enabled = true;
-//}
-//else
-//{
-//------------------------------------------------------------------------------
-//    roundState = RoundState.Firstplayer;
-//                    switch (roundState)
-//                    {
-//                        case RoundState.Firstplayer:
-//                            {
-//                                player1.UnableMovement();
-//                                playerMovement.GenerateMoves(player2);
-//                                roundState = RoundState.SecondPlayer;
-//                                break;
-//                            }
-//                        case RoundState.SecondPlayer:
-//                            {
-//    player2.UnableMovement();
-//    player1.AbleMovement();
-//    playerMovement.GenerateMove();
-//    roundState = RoundState.Check;
-//    break;
-//}
-//                        case RoundState.Check:
-//                            {
-//    CheckForGameEnd();
-//    roundState = RoundState.Firstplayer;
-//    break;
-//}
-
-//                    }
-//                    break;
-//}
-//-------------------------------------------------------------------------------------------------
-//
-//playerMovement.GenerateMoveFirstPlayer();
-//player1.UnableMovement();
-//playerMovement.GenerateMoveSecondPlayer();
-//player2.UnableMovement();
-//player1.AbleMovement();
-//playerMovement.GenerateMoveFirstPlayer();
-//CheckForGameEnd();
