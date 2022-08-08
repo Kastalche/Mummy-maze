@@ -6,6 +6,9 @@ public class StartController : IStateController
 {
     GameStateManagr gameManager;
 
+    [SerializeField] private Canvas ExplorersWin;
+    [SerializeField] private Canvas MummiesWin;
+
     public StartController(GameStateManagr gm)
     {
         gameManager = gm;
@@ -13,9 +16,9 @@ public class StartController : IStateController
 
     public void Start()
     {
-        gameManager.DisableAllUI();
+        DisableAllUI();
         gameManager.AddCharacters();
-        gameManager.CharactersToStartPosition();
+        CharactersToStartPosition();
 
         gameManager.Transition(GameStates.BattleState);
     }
@@ -23,5 +26,17 @@ public class StartController : IStateController
     public void Destroy()
     {
 
+    }
+    public void DisableAllUI()
+    {
+        ExplorersWin.enabled = false;
+        MummiesWin.enabled = false;
+    }
+    public void CharactersToStartPosition()
+    {
+        foreach (var character in gameManager.characters)
+        {
+            character.GoToStartPosition();
+        }
     }
 }

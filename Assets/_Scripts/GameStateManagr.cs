@@ -11,11 +11,11 @@ public class GameStateManagr : MonoBehaviour
     private Character currentPlayer;
     public GameModes mode { get; private set; }
     public static IStateController state;
-    [SerializeField] public List<Character> characters { get; private set; }
-    [SerializeField] private CharacterMovement playerMovement;
 
-    [SerializeField] private Canvas ExplorersWin;
-    [SerializeField] private Canvas MummiesWin;
+    [SerializeField] public List<Character> characters { get; private set; }
+    [SerializeField] public CharacterMovement playerMovement { get; private set; }
+    [SerializeField] public GridManager gridManager;
+
 
     //add player dying
 
@@ -47,7 +47,6 @@ public class GameStateManagr : MonoBehaviour
         }
         state.Start();
     }
-
     private void ExplorerMoved()
     {
         if (mode == GameModes.SinglePlayer)
@@ -59,48 +58,6 @@ public class GameStateManagr : MonoBehaviour
             while (currentPlayer != null)
                 currentPlayer = characters[characters.IndexOf(currentPlayer) + 1];
             playerMovement.GeneratePlayerMove(currentPlayer);
-        }
-    }
-
-
-    public void CheckForGameEnd()
-    {
-        //in progress :D
-    }
-
-    public void ExploresTurn()
-    {
-        foreach (var character in characters)
-        {
-            if (character.isMummy == false)
-            {
-                if (character.isBot)
-                {
-                    playerMovement.GenerateBotMove(character);
-                }
-                else
-                {
-                    playerMovement.GeneratePlayerMove(character);
-                }
-            }
-        }
-    }
-
-    public void MummiesTurn()
-    {
-        foreach (var character in characters)
-        {
-            if (character.isMummy == true && character.isBot == true)
-                playerMovement.GenerateBotMove(character);
-            else if (character.isMummy == true && character.isBot == false)
-                playerMovement.GeneratePlayerMove(character);
-        }
-    }
-    public void CharactersToStartPosition()
-    {
-        foreach (var character in characters)
-        {
-            character.GoToStartPosition();
         }
     }
     public void AddCharacters()
@@ -122,11 +79,6 @@ public class GameStateManagr : MonoBehaviour
             characters.Add(new Character { startPosition = gridManager.tiles[1, 2], isBot = false, isMummy = true, });
         }
         currentPlayer = characters[0];
-    }
-    public void DisableAllUI()
-    {
-        ExplorersWin.enabled = false;
-        MummiesWin.enabled = false;
     }
 }
 

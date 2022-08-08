@@ -14,20 +14,51 @@ public class BattleController : IStateController
     {
         if (gameManager.mode.ToString() == "SinglePlayer")
         {
-            var explorer = gameManager.characters[1];
-            gameManager.ExploresTurn();
-            gameManager.CheckForGameEnd();
+            ExploresTurn();
+            CheckForGameEnd();
             gameManager.Transition(GameStates.BattleState);
         }
         else if (gameManager.mode.ToString() == "MultiPlayer")
         {
-            gameManager.ExploresTurn();
-            gameManager.MummiesTurn();
+            ExploresTurn();
+            MummiesTurn();
             gameManager.Transition(GameStates.BattleState);
         }
     }
     public void Destroy()
     {
         SceneManager.LoadScene("GameStart");
+    }
+
+    public void ExploresTurn()
+    {
+        foreach (var character in gameManager.characters)
+        {
+            if (character.isMummy == false)
+            {
+                if (character.isBot)
+                {
+                    gameManager.playerMovement.GenerateBotMove(character);
+                }
+                else
+                {
+                    gameManager.playerMovement.GeneratePlayerMove(character);
+                }
+            }
+        }
+    }
+    public void MummiesTurn()
+    {
+        foreach (var character in gameManager.characters)
+        {
+            if (character.isMummy == true && character.isBot == true)
+                gameManager.playerMovement.GenerateBotMove(character);
+            else if (character.isMummy == true && character.isBot == false)
+                gameManager.playerMovement.GeneratePlayerMove(character);
+        }
+    }
+    public void CheckForGameEnd()
+    {
+        //in progress
     }
 }

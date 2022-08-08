@@ -9,7 +9,6 @@ public class CharacterMovement : MonoBehaviour
     [SerializeField] private GridManager gridManager;
 
     public UnityEvent ExplorerMoved;
-    public Tile startPosition { get; private set; }
     private void Start()
     {
         ExplorerMoved = new UnityEvent();
@@ -133,7 +132,7 @@ public class CharacterMovement : MonoBehaviour
     public void BotMoveHorizontally(Character mummy)
     {
         var mummyPos = mummy.transform.position;
-        var playerPos = FindTargetTile().transform.position;
+        var playerPos = FindTargetTile(mummy).transform.position;
 
         if (mummyPos.x < playerPos.x)   //right
         {
@@ -180,19 +179,11 @@ public class CharacterMovement : MonoBehaviour
         mummy.transform.position = tile.transform.position;
     }
 
-    public Tile FindTargetTile() // (in progress)or players do it depending on how much player we have case
+    public Tile FindExplorerTile(Character mummy, Character player1, Character player2)
     {
-        characters[0].TargetPosition = CompareExplores(characters[2], characters[3]).transform.position;
-        //Compare player1 and player2 positions and check
-        for (int i = 0; i < 6; i++)
-        {
-            for (int j = 0; j < 6; j++)
-            {
-                if (gridManager.tiles[i, j].transform.position == targetPosition.transform.position)
-                    return gridManager.tiles[i, j];
-            }
-        }
-        return gridManager.tiles[(int)transform.position.x, (int)transform.position.y];
+        var targetPlayer = CompareExplores(mummy, player1, player2);
+        mummy.TargetPosition.transform.position = targetPlayer.transform.position;
+        //if this row works I will buy myself a balkanche
     }
 
 
