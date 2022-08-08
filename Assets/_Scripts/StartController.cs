@@ -16,10 +16,12 @@ public class StartController : IStateController
         gameManager.DisableAllUI();
         gameManager.AddCharacters();
         gameManager.CharactersToStartPosition();
+
+        gameManager.Transition(GameStates.BattleState);
     }
 
     public void Destroy()
     {
-        gameManager.Transition(GameStates.BattleState);
+
     }
 }
