@@ -6,10 +6,10 @@ public class Tile : MonoBehaviour
 {
     [SerializeField] private Color _baseColor, _offsetColor;
     [SerializeField] private SpriteRenderer _renderer;
-    public int x { get; private set; }  
+    public int x { get; private set; }
     public int y { get; private set; }
 
-    public List<int> obstacles=new List<int>(0);
+    public List<int> obstacles = new List<int>(0);
     //add 1 for left
     //add 2 for up
     // add 3 for right
@@ -17,8 +17,8 @@ public class Tile : MonoBehaviour
     // array enum
     public void Init(bool isOffset, int x, int y)
     {
-        this.x= x;
-        this.y= y;
+        this.x = x;
+        this.y = y;
         obstacles.Clear();
         _renderer.color = isOffset ? _offsetColor : _baseColor;
     }
