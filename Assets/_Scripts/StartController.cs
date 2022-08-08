@@ -20,7 +20,6 @@ public class StartController : IStateController
 
     public void Destroy()
     {
-        gameManager.Transition(StateType.BattleState);
-
+        gameManager.Transition(GameStates.BattleState);
     }
 }

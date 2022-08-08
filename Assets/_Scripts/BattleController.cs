@@ -17,13 +17,13 @@ public class BattleController : IStateController
             var explorer = gameManager.characters[1];
             gameManager.ExploresTurn();
             gameManager.CheckForGameEnd();
-            gameManager.Transition(StateType.BattleState);
+            gameManager.Transition(GameStates.BattleState);
         }
         else if (gameManager.mode.ToString() == "MultiPlayer")
         {
             gameManager.ExploresTurn();
             gameManager.MummiesTurn();
-            gameManager.Transition(StateType.BattleState);
+            gameManager.Transition(GameStates.BattleState);
         }
     }
     public void Destroy()
