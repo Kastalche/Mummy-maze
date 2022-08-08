@@ -4,97 +4,41 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public enum GameModes { SinglePlayer, Multiplayer }
-//public enum GameState { Explorers, Mummies, Check }
-public enum StateType { StartState, BattleState, EndState }
+public enum GameStates { StartState, BattleState, EndState }
+
 public class GameStateManagr : MonoBehaviour
 {
-    public GameModes mode { get; private set; }
     private Character currentPlayer;
+    public GameModes mode { get; private set; }
+    public static IStateController state;
     [SerializeField] public List<Character> characters { get; private set; }
-
-    [SerializeField] private GridManager gridManager;
+    [SerializeField] private CharacterMovement playerMovement;
 
     [SerializeField] private Canvas ExplorersWin;
     [SerializeField] private Canvas MummiesWin;
-    [SerializeField] private PlayerMovement playerMovement;
-
-    //private GameState gameState;
 
     //add player dying
-    //case singlePlayer, case multiplear
-    void Start()
+
+    private void Awake()
     {
         state = new StartController(this);
-
     }
 
-    void Update()
+    public void Transition(GameStates newState)
     {
-        switch (mode)
+        state.Destroy();
+
+        switch (newState)
         {
-            case GameModes.SinglePlayer:
-                {
-                    var explorer = characters[1];
-                    playerMovement.GenerateExplorerMove(explorer);
-                    CheckForGameEnd();
-                    break;
-                }
-            case GameModes.Multiplayer:
-                {
-                    switch (gameState)
-                    {
-                        case GameState.Explorers:
-                            while (currentPlayer != null)
-                            {
-                                if (currentPlayer.isMummy == true)
-                                {
-                                    ExplorerMoved();
-                                }
-                                playerMovement.GenerateExplorerMove(currentPlayer);
-                                gameState = GameState.Mummies;
-                            }
-                            break;
-
-                        case GameState.Mummies:
-                            foreach (var character in characters)
-                            {
-                                if (character.isMummy == false)
-                                {
-                                    playerMovement.GenerateExplorerMove(character);
-                                }
-                                else if (character.isMummy == true && character.isBot == true)
-                                    GenerateBotMummyMove(character);
-                                else (character.isMummy == true && character.isBot == false)
-                                    playerMovement.GeneratePlayerMummyMove(character);
-                            }
-
-                            break;
-
-                        case GameState.Check:
-                            CheckForGameEnd();
-                            break;
-                    }
-                    break;
-                }
-            default:
-                break;
-        }
-    }
-    public void Transition(StateType type)
-    {
-        state.Dispose();
-
-        switch (type)
-        {
-            case StateType.StartState:
+            case GameStates.StartState:
                 state = new StartController(this);
                 break;
 
-            case StateType.BattleState:
+            case GameStates.BattleState:
                 state = new BattleController(this);
                 break;
 
-            case StateType.EndState:
+            case GameStates.EndState:
                 state = new EndController(this);
                 break;
 
@@ -108,57 +52,20 @@ public class GameStateManagr : MonoBehaviour
     {
         if (mode == GameModes.SinglePlayer)
         {
-            GenerateBotMummyMove(characters[0]);
+            playerMovement.GenerateBotMove(characters[0]);
         }
         else
         {
             while (currentPlayer != null)
                 currentPlayer = characters[characters.IndexOf(currentPlayer) + 1];
+            playerMovement.GeneratePlayerMove(currentPlayer);
         }
-
-        ExplorersWin.enabled = false;
-        MummiesWin.enabled = false;
     }
 
 
     public void CheckForGameEnd()
     {
-        if (currentPlayer.transform.position == mummy.transform.position || currentPlayer.transform.position == mummy.transform.position)
-        {
-            RestartGame();
-            MummiesWin.enabled = true;
-        }
-        else if (gridManager.tiles[5, 0].transform.position == currentPlayer.transform.position && gridManager.tiles[5, 0].transform.position == currentPlayer.transform.position)
-        {
-            RestartGame();
-            ExplorersWin.enabled = true;
-        }
-        else
-            gameState = GameState.Explorers;
-    }
-
-    public void GenerateBotMummyMove(Character mummy)
-    {
-        if (playerMovement.MummyNotOnPlayersX(mummy))
-        {
-            playerMovement.BotMoveHorizontally(mummy);
-            print("horizontal");
-        }
-        else
-        {
-            playerMovement.BotMoveVertically(mummy);
-            print("vertical");
-        }
-
-        if (playerMovement.MummyNotOnPlayersY(mummy))
-        {
-            playerMovement.BotMoveVertically(mummy);
-        }
-        else
-        {
-            playerMovement.BotMoveHorizontally(mummy);
-        }
-        gameState = GameState.Check;
+        //in progress :D
     }
 
     public void ExploresTurn()
@@ -166,7 +73,16 @@ public class GameStateManagr : MonoBehaviour
         foreach (var character in characters)
         {
             if (character.isMummy == false)
-                playerMovement.GenerateExplorerMove(character);
+            {
+                if (character.isBot)
+                {
+                    playerMovement.GenerateBotMove(character);
+                }
+                else
+                {
+                    playerMovement.GeneratePlayerMove(character);
+                }
+            }
         }
     }
 
@@ -175,9 +91,9 @@ public class GameStateManagr : MonoBehaviour
         foreach (var character in characters)
         {
             if (character.isMummy == true && character.isBot == true)
-                GenerateBotMummyMove(character);
+                playerMovement.GenerateBotMove(character);
             else if (character.isMummy == true && character.isBot == false)
-                playerMovement.GeneratePlayerMummyMove(character);
+                playerMovement.GeneratePlayerMove(character);
         }
     }
     public void CharactersToStartPosition()
@@ -196,7 +112,7 @@ public class GameStateManagr : MonoBehaviour
             characters.Add(new Character { startPosition = gridManager.tiles[3, 5], isBot = true, isMummy = true });
             characters.Add(new Character { startPosition = gridManager.tiles[1, 2], isBot = false, isMummy = false, });
             mode = GameModes.SinglePlayer
-        }
+            }
         else if (sceneName == "MultiPlayerScene")
         {
             mode = GameModes.Multiplayer;
