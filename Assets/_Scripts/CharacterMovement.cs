@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class PlayerMovement : MonoBehaviour
+public class CharacterMovement : MonoBehaviour
 {
     [SerializeField] private GridManager gridManager;
 
@@ -14,7 +14,7 @@ public class PlayerMovement : MonoBehaviour
     {
         ExplorerMoved = new UnityEvent();
     }
-    public void GenerateExplorerMove(Character player)
+    public void GeneratePlayerMove(Character player)
     {
         var playerPos = gridManager.tiles[(int)player.transform.position.x, (int)player.transform.position.y];
 
@@ -62,6 +62,36 @@ public class PlayerMovement : MonoBehaviour
             ExplorerMoved?.Invoke();
         }
     }
+    public void GenerateBotMove(Character bot)
+    {
+        if (bot.isMummy)
+        {
+            if (MummyNotOnPlayersX(bot))
+            {
+                BotMoveHorizontally(bot);
+                print("horizontal");
+            }
+            else
+            {
+                BotMoveVertically(bot);
+                print("vertical");
+            }
+
+            if (MummyNotOnPlayersY(bot))
+            {
+                BotMoveVertically(bot);
+            }
+            else
+            {
+                BotMoveHorizontally(bot);
+            }
+        }
+        else
+        {
+            BotMoveHorizontally(bot);
+        }
+        //don't forget to add a proper method for playerBotMove 
+    }
     public bool IsAvailableFrom(Tile targetTile, Tile yourTile)
     {
         if (targetTile.obstacles.Count != 0)
@@ -100,18 +130,14 @@ public class PlayerMovement : MonoBehaviour
         }
         return true;
     }
-
-    //------------------------------------------------------------------------------------
-    //mummyMovmentMethods
-
     public void BotMoveHorizontally(Character mummy)
     {
         var mummyPos = mummy.transform.position;
-        var playerPos = FindPlayerTile().transform.position;
+        var playerPos = FindTargetTile().transform.position;
 
         if (mummyPos.x < playerPos.x)   //right
         {
-            if (isAvailableFrom(gridManager.tiles[(int)mummyPos.x + 1, (int)mummyPos.y], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
+            if (IsAvailableFrom(gridManager.tiles[(int)mummyPos.x + 1, (int)mummyPos.y], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
             {
                 GoTo(mummy, gridManager.tiles[(int)mummyPos.x + 1, (int)mummyPos.y]);
             }
@@ -119,7 +145,7 @@ public class PlayerMovement : MonoBehaviour
 
         else   //left
         {
-            if (isAvailableFrom(gridManager.tiles[(int)mummyPos.x - 1, (int)mummyPos.y], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
+            if (IsAvailableFrom(gridManager.tiles[(int)mummyPos.x - 1, (int)mummyPos.y], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
             {
                 GoTo(mummy, gridManager.tiles[(int)mummyPos.x - 1, (int)mummyPos.y]);
             }
@@ -130,11 +156,11 @@ public class PlayerMovement : MonoBehaviour
     public void BotMoveVertically(Character mummy)
     {
         var mummyPos = mummy.transform.position;
-        var playerPos = FindPlayerTile().transform.position;
+        var playerPos = FindTargetTile().transform.position;
 
         if (mummyPos.y < playerPos.y) //up
         {
-            if (isAvailableFrom(gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y + 1], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
+            if (IsAvailableFrom(gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y + 1], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
             {
                 GoTo(mummy, gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y + 1]);
             }
@@ -142,7 +168,7 @@ public class PlayerMovement : MonoBehaviour
 
         else //down
         {
-            if (isAvailableFrom(gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y - 1], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
+            if (IsAvailableFrom(gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y - 1], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
             {
                 GoTo(mummy, gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y - 1]);
             }
@@ -154,9 +180,9 @@ public class PlayerMovement : MonoBehaviour
         mummy.transform.position = tile.transform.position;
     }
 
-    public Tile FindPlayerTile() //or players do it depending on how much player we have case
+    public Tile FindTargetTile() // (in progress)or players do it depending on how much player we have case
     {
-         characters[0].TargetPosition=CompareExplores(characters[2],characters[3]).transform.position;
+        characters[0].TargetPosition = CompareExplores(characters[2], characters[3]).transform.position;
         //Compare player1 and player2 positions and check
         for (int i = 0; i < 6; i++)
         {
@@ -169,64 +195,6 @@ public class PlayerMovement : MonoBehaviour
         return gridManager.tiles[(int)transform.position.x, (int)transform.position.y];
     }
 
-    public bool MummyNotOnPlayersX(Character mummy)
-    {
-        var mummyPos = mummy.transform.position;
-        var playerPos = FindPlayerTile().transform.position;
-
-        if (mummyPos.x != playerPos.x)
-            return true;
-        else return false;
-    }
-
-    public bool MummyNotOnPlayersY(Character mummy)
-    {
-        var mummyPos = mummy.transform.position;
-        var playerPos = FindPlayerTile().transform.position;
-
-        if (mummyPos.y != playerPos.y)
-            return true;
-        else return false;
-    }
-
-    public bool isAvailableFrom(Tile targetTile, Tile yourTile)
-    {
-        if (targetTile.obstacles.Count != 0)
-        {
-            if (targetTile.x != yourTile.x)   //if your x is diffrent
-            {
-                if (targetTile.x - yourTile.x == -1)    // u go left =>right
-                {
-                    if (targetTile.obstacles.Contains(3))
-                        return false;
-                    else return true;
-                }
-                else if (targetTile.x - yourTile.x == 1)   // righ => left
-                {
-                    if (targetTile.obstacles.Contains(1))
-                        return false;
-                    else return true;
-                }
-            }
-
-            if (targetTile.y != yourTile.y)
-            {
-                if (targetTile.y - yourTile.y == 1)
-                {
-                    if (targetTile.obstacles.Contains(4))   // up => down
-                        return false;
-                    else return true;
-                }
-                else if (targetTile.y - yourTile.y == -1)
-                {
-                    if (targetTile.obstacles.Contains(2))  //down => up
-                        return false;
-                    else return true;
-                }
-            }
-        }
-        return true;
-    }
 
     public Character CompareExplores(Character mummy, Character player1, Character player2)
     {
@@ -238,10 +206,25 @@ public class PlayerMovement : MonoBehaviour
             return player1;
     }
 
-    public void GeneratePlayerMummyMove(Character mummy)
+    public bool MummyNotOnPlayersX(Character mummy)
     {
+        var mummyPos = mummy.transform.position;
+        var playerPos = FindTargetTile().transform.position;
 
+        if (mummyPos.x != playerPos.x)
+            return true;
+        else return false;
     }
+    public bool MummyNotOnPlayersY(Character mummy)
+    {
+        var mummyPos = mummy.transform.position;
+        var playerPos = FindTargetTile().transform.position;
+
+        if (mummyPos.y != playerPos.y)
+            return true;
+        else return false;
+    }
+
 }
 
 

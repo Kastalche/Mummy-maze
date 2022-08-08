@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 public class Character : MonoBehaviour
 {
-    [SerializeField] private PlayerMovement playerMovement; //i am not sure i need this.
+    [SerializeField] private CharacterMovement playerMovement; //i am not sure i need this.
     public Tile startPosition { get; set; }
     public bool isBot;
     public bool isMummy;
