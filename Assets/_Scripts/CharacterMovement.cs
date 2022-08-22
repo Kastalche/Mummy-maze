@@ -6,14 +6,15 @@ using UnityEngine.Events;
 
 public class CharacterMovement : MonoBehaviour
 {
-    [SerializeField] private GridManager gridManager;
-    [SerializeField] private GameStateManagr gameManager;
+    [SerializeField] GridManager gridManager;
+    [SerializeField] GameStateManagr gameManager;
 
     public UnityEvent ExplorerMoved;
     private void Start()
     {
         ExplorerMoved = new UnityEvent();
     }
+
     public void GeneratePlayerMove(Character player)
     {
         var playerPos = gridManager.tiles[(int)player.transform.position.x, (int)player.transform.position.y];
@@ -62,6 +63,7 @@ public class CharacterMovement : MonoBehaviour
             ExplorerMoved?.Invoke();
         }
     }
+
     public void GenerateBotMove(Character bot)
     {
         if (bot.isMummy)
@@ -92,6 +94,8 @@ public class CharacterMovement : MonoBehaviour
         }
         //don't forget to add a proper method for playerBotMove 
     }
+
+
     public bool IsAvailableFrom(Tile targetTile, Tile yourTile)
     {
         if (targetTile.obstacles.Count != 0)
@@ -130,50 +134,6 @@ public class CharacterMovement : MonoBehaviour
         }
         return true;
     }
-    public void BotMoveHorizontally(Character mummy)
-    {
-        var mummyPos = mummy.transform.position;
-        var playerPos = FindExplorerTile(mummy).transform.position;
-
-        if (mummyPos.x < playerPos.x)   //right
-        {
-            if (IsAvailableFrom(gridManager.tiles[(int)mummyPos.x + 1, (int)mummyPos.y], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
-            {
-                GoTo(mummy, gridManager.tiles[(int)mummyPos.x + 1, (int)mummyPos.y]);
-            }
-        }
-
-        else   //left
-        {
-            if (IsAvailableFrom(gridManager.tiles[(int)mummyPos.x - 1, (int)mummyPos.y], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
-            {
-                GoTo(mummy, gridManager.tiles[(int)mummyPos.x - 1, (int)mummyPos.y]);
-            }
-
-        }
-    }
-
-    public void BotMoveVertically(Character mummy)
-    {
-        var mummyPos = mummy.transform.position;
-        var playerPos = FindTargetTile().transform.position;
-
-        if (mummyPos.y < playerPos.y) //up
-        {
-            if (IsAvailableFrom(gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y + 1], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
-            {
-                GoTo(mummy, gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y + 1]);
-            }
-        }
-
-        else //down
-        {
-            if (IsAvailableFrom(gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y - 1], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
-            {
-                GoTo(mummy, gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y - 1]);
-            }
-        }
-    }
 
     public void GoTo(Character mummy, Tile tile)
     {
@@ -211,6 +171,50 @@ public class CharacterMovement : MonoBehaviour
         }
     }
 
+    #region Methods Used Only For Generating Bot Move
+    public void BotMoveVertically(Character mummy)
+    {
+        var mummyPos = mummy.transform.position;
+        var playerPos = FindExplorerTile(mummy).transform.position;
+
+        if (mummyPos.y < playerPos.y) //up
+        {
+            if (IsAvailableFrom(gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y + 1], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
+            {
+                GoTo(mummy, gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y + 1]);
+            }
+        }
+
+        else //down
+        {
+            if (IsAvailableFrom(gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y - 1], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
+            {
+                GoTo(mummy, gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y - 1]);
+            }
+        }
+    }
+    public void BotMoveHorizontally(Character mummy)
+    {
+        var mummyPos = mummy.transform.position;
+        var playerPos = FindExplorerTile(mummy).transform.position;
+
+        if (mummyPos.x < playerPos.x)   //right
+        {
+            if (IsAvailableFrom(gridManager.tiles[(int)mummyPos.x + 1, (int)mummyPos.y], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
+            {
+                GoTo(mummy, gridManager.tiles[(int)mummyPos.x + 1, (int)mummyPos.y]);
+            }
+        }
+
+        else   //left
+        {
+            if (IsAvailableFrom(gridManager.tiles[(int)mummyPos.x - 1, (int)mummyPos.y], gridManager.tiles[(int)mummyPos.x, (int)mummyPos.y]))
+            {
+                GoTo(mummy, gridManager.tiles[(int)mummyPos.x - 1, (int)mummyPos.y]);
+            }
+
+        }
+    }
     public bool MummyNotOnPlayersX(Character mummy)
     {
         var mummyPos = mummy.transform.position;
@@ -229,4 +233,6 @@ public class CharacterMovement : MonoBehaviour
             return true;
         else return false;
     }
+    #endregion
+
 }
