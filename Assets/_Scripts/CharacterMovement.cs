@@ -10,6 +10,7 @@ public class CharacterMovement : MonoBehaviour
     [SerializeField] GameStateManagr gameManager;
 
     public UnityEvent ExplorerMoved;
+
     private void Start()
     {
         ExplorerMoved = new UnityEvent();

@@ -68,8 +68,8 @@ public class GameStateManagr : MonoBehaviour
         {
             characters.Add(new Character { startPosition = gridManager.tiles[3, 5], isBot = true, isMummy = true });
             characters.Add(new Character { startPosition = gridManager.tiles[1, 2], isBot = false, isMummy = false, });
-            mode = GameModes.SinglePlayer
-            }
+            mode = GameModes.SinglePlayer;
+        }
         else if (sceneName == "MultiPlayerScene")
         {
             mode = GameModes.Multiplayer;

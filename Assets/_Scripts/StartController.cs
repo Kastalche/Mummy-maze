@@ -5,6 +5,7 @@ using UnityEngine;
 public class StartController : IStateController
 {
     GameStateManagr gameManager;
+    //public SocketIOComponent socket;
 
     [SerializeField] private Canvas ExplorersWin;
     [SerializeField] private Canvas MummiesWin;
@@ -16,6 +17,7 @@ public class StartController : IStateController
 
     public void Start()
     {
+        //socket.On("singlePlayer", GoToSinglePlayerScene);
         DisableAllUI();
         gameManager.AddCharacters();
         CharactersToStartPosition();
@@ -39,4 +41,8 @@ public class StartController : IStateController
             character.GoToStartPosition();
         }
     }
+    //void GoToSinglePlayerScene(SocketIOEvent socketIOEvent)
+    //{
+    //    SceneManager.LoadScene("SampleScene");
+    //}
 }
