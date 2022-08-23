@@ -1,6 +1,9 @@
 ###
 # Unity folders and files
 ###
+[Ll]eanTween/
+[Ee]ditor/
+[Ss]ocketIO/
 [Aa]ssets/AssetStoreTools*
 [Bb]uild/
 [Ll]ibrary/
