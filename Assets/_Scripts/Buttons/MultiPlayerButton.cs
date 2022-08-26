@@ -5,9 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class MultiPlayerButton : MonoBehaviour
 {
-
+    [SerializeField] NetworkManager mng;
     public void OnMouseUpAsButton()
     {
+        mng.PlayMulti();
         SceneManager.LoadScene("MultiPlayerScene");
     }
 }
