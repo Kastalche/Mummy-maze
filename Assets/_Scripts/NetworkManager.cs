@@ -20,7 +20,6 @@ public class NetworkManager : MonoBehaviour
 
     }
 
-    // Update is called once per frame
     void Update()
     {
 
@@ -34,5 +33,10 @@ public class NetworkManager : MonoBehaviour
     {
         socket.Emit("multiPlayer");
         print("emittted Multiplayer");
+    }
+
+    public void PlayerMove(JSONObject data)
+    {
+        socket.Emit("playerMove", data);
     }
 }

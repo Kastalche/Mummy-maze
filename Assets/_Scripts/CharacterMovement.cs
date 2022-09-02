@@ -8,6 +8,7 @@ public class CharacterMovement : MonoBehaviour
 {
     [SerializeField] GridManager gridManager;
     [SerializeField] GameStateManagr gameManager;
+    [SerializeField] NetworkManager mng;
 
     public UnityEvent ExplorerMoved;
 
@@ -25,7 +26,9 @@ public class CharacterMovement : MonoBehaviour
             if (IsAvailableFrom(gridManager.tiles[(int)playerPos.x + 1, (int)playerPos.y], gridManager.tiles[(int)playerPos.x, (int)playerPos.y]))
             {
                 player.transform.position = gridManager.tiles[(int)player.transform.position.x + 1, (int)player.transform.position.y].transform.position;
-
+                var playerJ = JsonUtility.ToJson(player);
+                var tileJ = JsonUtility.ToJson(gridManager.tiles[(int)playerPos.x + 1, (int)playerPos.y]);
+                mng.PlayerMove(new JSONObject(playerJ + tileJ));
                 ExplorerMoved?.Invoke();
             }
         }
