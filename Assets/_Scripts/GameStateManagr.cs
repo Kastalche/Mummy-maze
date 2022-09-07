@@ -62,6 +62,7 @@ public class GameStateManagr : MonoBehaviour
     }
     public void AddCharacters()
     {
+        //idon'tthink this works
         Scene currentScene = SceneManager.GetActiveScene();
         string sceneName = currentScene.name;
         if (sceneName == "SampleScene")

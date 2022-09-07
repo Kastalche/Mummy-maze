@@ -18,7 +18,7 @@ public class BattleController : IStateController
     {
         socket.On("ExploresTurn", ExploresTurn);
         socket.On("MummiesTurn", MummiesTurn);
-        socket.On("CheckForGameEnd", CheckForGameEnd); // maybe the server needs to do this but for now i leave this here
+        //socket.On("CheckForGameEnd", CheckForGameEnd); // maybe the server needs to do this but for now i leave this here
     }
     public void Destroy()
     {

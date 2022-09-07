@@ -17,7 +17,8 @@ public class NetworkManager : MonoBehaviour
     }
     void Start()
     {
-
+        socket.On("lobbyIsFull", OnFullLobby);
+        socket.On("killExplorer", OnKilledExplorer);
     }
 
     void Update()
@@ -27,6 +28,7 @@ public class NetworkManager : MonoBehaviour
     public void PlaySingle()
     {
         socket.Emit("singlePlayer");
+
         print("emittted SinglePlayer");
     }
     public void PlayMulti()
@@ -35,8 +37,17 @@ public class NetworkManager : MonoBehaviour
         print("emittted Multiplayer");
     }
 
-    public void PlayerMove(JSONObject data)
+    public void PlayerMove(JSONObject tile)
     {
-        socket.Emit("playerMove", data);
+        socket.Emit("playerMove", tile);
+    }
+
+    private void OnFullLobby(SocketIOEvent obj)
+    {
+
+    }
+    private void OnKilledExplorer(SocketIOEvent obj)
+    {
+
     }
 }

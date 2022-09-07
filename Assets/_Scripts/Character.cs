@@ -18,4 +18,5 @@ public class Character : MonoBehaviour
     {
         transform.position = startPosition.transform.position;
     }
+
 }
