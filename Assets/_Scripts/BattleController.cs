@@ -16,17 +16,17 @@ public class BattleController : IStateController
 
     public void Start()
     {
-        socket.On("ExploresTurn", ExploresTurn);
-        socket.On("MummiesTurn", MummiesTurn);
-        //socket.On("CheckForGameEnd", CheckForGameEnd); // maybe the server needs to do this but for now i leave this here
+        socket.On("ApplyMove", OnApplyMove);
+        socket.On("ExploresTurn", OnExploresTurn);
+        socket.On("MummiesTurn", OnMummiesTurn);
+        socket.On("BatlleEnd", OnBattleEnd);
     }
     public void Destroy()
     {
         SceneManager.LoadScene("GameStart");
     }
 
-
-    public void ExploresTurn(SocketIOEvent socketIOEvent)
+    public void OnExploresTurn(SocketIOEvent socketIOEvent)
     {
         foreach (var character in gameManager.characters)
         {
@@ -44,7 +44,7 @@ public class BattleController : IStateController
         }
     }
 
-    public void MummiesTurn(SocketIOEvent socketIOEvent)
+    public void OnMummiesTurn(SocketIOEvent socketIOEvent)
     {
         foreach (var character in gameManager.characters)
         {
@@ -55,7 +55,14 @@ public class BattleController : IStateController
         }
     }
 
-    public void CheckForGameEnd(SocketIOEvent socketIOEvent)
+    public void OnBattleEnd(SocketIOEvent socketIOEvent)
     {
+
+    }
+
+    public void OnApplyMove(SocketIOEvent socketIOEvent)
+    {
+        string data = socketIOEvent.data.ToString();
+        Tile tile = JsonUtility.FromJson<Tile>(data);
     }
 }

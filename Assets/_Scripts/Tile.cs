@@ -15,6 +15,7 @@ public class Tile : MonoBehaviour
     // add 3 for right
     // add 4 for down
     // array enum
+
     public void Init(bool isOffset, int x, int y)
     {
         this.x = x;

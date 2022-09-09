@@ -1,14 +1,19 @@
+using SocketIO;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class StartController : IStateController
 {
     GameStateManagr gameManager;
+
     //public SocketIOComponent socket;
 
     [SerializeField] private Canvas ExplorersWin;
     [SerializeField] private Canvas MummiesWin;
+    public SocketIOComponent socket;
 
     public StartController(GameStateManagr gm)
     {
@@ -17,23 +22,27 @@ public class StartController : IStateController
 
     public void Start()
     {
-        //socket.On("singlePlayer", GoToSinglePlayerScene);
+        Debug.Log("StartController");
+
         DisableAllUI();
-        gameManager.AddCharacters();
+        AddCharacters();
         CharactersToStartPosition();
 
         gameManager.Transition(GameStates.BattleState);
     }
 
+
     public void Destroy()
     {
 
     }
+
     public void DisableAllUI()
     {
         ExplorersWin.enabled = false;
         MummiesWin.enabled = false;
     }
+
     public void CharactersToStartPosition()
     {
         foreach (var character in gameManager.characters)
@@ -41,8 +50,20 @@ public class StartController : IStateController
             character.GoToStartPosition();
         }
     }
-    //void GoToSinglePlayerScene(SocketIOEvent socketIOEvent)
-    //{
-    //    SceneManager.LoadScene("SampleScene");
-    //}
+
+    public void AddCharacters()
+    {
+        Scene currentScene = SceneManager.GetActiveScene();
+        string sceneName = currentScene.name;
+        Debug.Log(sceneName);
+        if (sceneName == "SampleScene")
+        {
+
+        }
+        else if (sceneName == "MultiPlayerScene")
+        {
+
+        }
+    }
+
 }

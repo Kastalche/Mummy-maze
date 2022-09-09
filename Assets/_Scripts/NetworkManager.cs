@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class NetworkManager : MonoBehaviour
 {
+    //important things here, take a list of players id from surves, remove all bot logics, and state machine logics, and when server send player id and players draw.
     public static NetworkManager instance;
     public SocketIOComponent socket;
     void Awake()
@@ -17,20 +18,16 @@ public class NetworkManager : MonoBehaviour
     }
     void Start()
     {
-        socket.On("lobbyIsFull", OnFullLobby);
         socket.On("killExplorer", OnKilledExplorer);
     }
 
-    void Update()
-    {
-
-    }
     public void PlaySingle()
     {
         socket.Emit("singlePlayer");
 
         print("emittted SinglePlayer");
     }
+
     public void PlayMulti()
     {
         socket.Emit("multiPlayer");
@@ -42,12 +39,8 @@ public class NetworkManager : MonoBehaviour
         socket.Emit("playerMove", tile);
     }
 
-    private void OnFullLobby(SocketIOEvent obj)
-    {
-
-    }
     private void OnKilledExplorer(SocketIOEvent obj)
     {
-
+        socket.Emit("KilledExplorer");
     }
 }

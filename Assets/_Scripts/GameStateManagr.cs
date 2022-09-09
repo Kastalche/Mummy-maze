@@ -17,16 +17,14 @@ public class GameStateManagr : MonoBehaviour
     [SerializeField] public GridManager gridManager;
 
 
-    //add player dying
-
     private void Awake()
     {
-        state = new StartController(this);
+        // state = new StartController(this);
     }
 
     public void Transition(GameStates newState)
     {
-        state.Destroy();
+        state?.Destroy();
 
         switch (newState)
         {
@@ -46,40 +44,6 @@ public class GameStateManagr : MonoBehaviour
                 break;
         }
         state.Start();
-    }
-    private void ExplorerMoved()
-    {
-        if (mode == GameModes.SinglePlayer)
-        {
-            playerMovement.GenerateBotMove(characters[0]);
-        }
-        else
-        {
-            while (currentPlayer != null)
-                currentPlayer = characters[characters.IndexOf(currentPlayer) + 1];
-            playerMovement.GeneratePlayerMove(currentPlayer);
-        }
-    }
-    public void AddCharacters()
-    {
-        //idon'tthink this works
-        Scene currentScene = SceneManager.GetActiveScene();
-        string sceneName = currentScene.name;
-        if (sceneName == "SampleScene")
-        {
-            characters.Add(new Character { startPosition = gridManager.tiles[3, 5], isBot = true, isMummy = true });
-            characters.Add(new Character { startPosition = gridManager.tiles[1, 2], isBot = false, isMummy = false, });
-            mode = GameModes.SinglePlayer;
-        }
-        else if (sceneName == "MultiPlayerScene")
-        {
-            mode = GameModes.Multiplayer;
-            //one bot mummym and two players explorers
-            characters.Add(new Character { startPosition = gridManager.tiles[1, 2], isBot = false, isMummy = false, });
-            characters.Add(new Character { startPosition = gridManager.tiles[1, 4], isBot = false, isMummy = false, });
-            characters.Add(new Character { startPosition = gridManager.tiles[1, 2], isBot = false, isMummy = true, });
-        }
-        currentPlayer = characters[0];
     }
 }
 

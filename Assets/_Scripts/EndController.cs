@@ -17,6 +17,7 @@ public class EndController : IStateController
     {
         SceneManager.LoadScene("StartScene");
     }
+
     public void Destroy()
     {
 

@@ -30,7 +30,7 @@ public class CharacterMovement : MonoBehaviour
                 var playerJ = JsonUtility.ToJson(player);
                 var tileJ = JsonUtility.ToJson(gridManager.tiles[(int)playerPos.x + 1, (int)playerPos.y]);
 
-                mng.PlayerMove(new JSONObject(playerJ + tileJ));
+                mng.PlayerMove(new JSONObject(tileJ));
 
                 //ExplorerMoved?.Invoke();
             }
@@ -240,6 +240,21 @@ public class CharacterMovement : MonoBehaviour
             return true;
         else return false;
     }
+
+
+    //private void ExplorerMoved()
+    //{
+    //    if (mode == GameModes.SinglePlayer)
+    //    {
+    //        playerMovement.GenerateBotMove(characters[0]);
+    //    }
+    //    else
+    //    {
+    //        while (currentPlayer != null)
+    //            currentPlayer = characters[characters.IndexOf(currentPlayer) + 1];
+    //        playerMovement.GeneratePlayerMove(currentPlayer);
+    //    }
+    //}
     #endregion
 
 }
