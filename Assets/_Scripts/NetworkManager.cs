@@ -20,13 +20,14 @@ public class NetworkManager : MonoBehaviour
     void Start()
     {
         socket.On("PlayerId", AddToPlayerList);
+        socket.On("BattleState", OnBattleStart);
         socket.On("killExplorer", OnKilledExplorer);
         socket.On("ApplyMove", OnApplyMove);
         socket.On("ExploresTurn", OnExploresTurn);
         socket.On("MummiesTurn", OnMummiesTurn);
         socket.On("BatlleEnd", OnBattleEnd);
     }
-
+    #region EmitToServerMethods
     public void PlaySingle()
     {
         socket.Emit("singlePlayer");
@@ -39,10 +40,11 @@ public class NetworkManager : MonoBehaviour
         socket.Emit("multiPlayer");
         print("emittted Multiplayer");
     }
+    #endregion
 
-    public void PlayerMove(JSONObject tile)
+    public void PlayerMove(JSONObject data)
     {
-        socket.Emit("playerMove", tile);
+        socket.Emit("playerMove", data);
     }
 
     private void OnKilledExplorer(SocketIOEvent obj)
@@ -74,7 +76,11 @@ public class NetworkManager : MonoBehaviour
     {
         string data = socketIOEvent.data.ToString();
         playerIds.Add(data);
+    }
+    public void OnBattleStart(SocketIOEvent socketIOEvent)
+    {
 
     }
+
 
 }
